@@ -1,6 +1,0 @@
-{
-    "name": "@jonasgrunert/subrouter",
-    "version": "<version>",
-    "license": "MIT",
-    "exports": "./router.ts"
-}
