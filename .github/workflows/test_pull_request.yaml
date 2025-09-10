@@ -20,7 +20,7 @@ jobs:
       - run: deno coverage --lcov --output=cov.lcov
       - uses: livewing/lcov-job-summary@v1.2.0
         with:
-          lcov: path/to/lcov.info
+          lcov: cov.lcov
       - run: |
           COVERAGE=$(deno coverage coverage_dir | grep "total:" | grep -o '[0-9]\+\.[0-9]\+')
           if (( $(echo "$COVERAGE < 95" | bc -l) )); then
