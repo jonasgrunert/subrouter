@@ -22,9 +22,16 @@ jobs:
         with:
           lcov: cov.lcov
       - run: |
-          COVERAGE=$(deno coverage coverage_dir | grep "total:" | grep -o '[0-9]\+\.[0-9]\+')
+          COVERAGE=$(deno coverage | grep "total:" | grep -o '[0-9]\+\.[0-9]\+')
           if (( $(echo "$COVERAGE < 95" | bc -l) )); then
             echo "Test coverage is below 95%: $COVERAGE%"
             exit 1
           fi
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            jsr:
+              - 'jsr.json'
       - run: npx jsr publish
+        if: steps.changes.outputs.jsr == 'true'
