@@ -21,9 +21,7 @@ jobs:
       - uses: livewing/lcov-job-summary@v1.2.0
         with:
           lcov: cov.lcov
-      - run: |
-          COVERAGE=$(deno coverage | grep "total:" | grep -o '[0-9]\+\.[0-9]\+')
-          if (( $(echo "$COVERAGE < 95" | bc -l) )); then
-            echo "Test coverage is below 95%: $COVERAGE%"
-            exit 1
-          fi
+      - uses: VeryGoodOpenSource/very_good_coverage@v2
+        with:
+          path: cov.lcov
+          min_coverage: 95
