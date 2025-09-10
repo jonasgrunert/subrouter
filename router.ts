@@ -7,8 +7,6 @@ type Handler = (
   next: () => Promise<Response>
 ) => Promise<Response>;
 
-type HttpMethod = (typeof httpMethods)[number];
-
 const httpMethods = [
   "GET",
   "POST",
@@ -25,15 +23,15 @@ function defaultNext() {
 
 export class Router {
   readonly #middleware: Array<Handler> = [];
-  readonly #routes: Array<[URLPattern, HttpMethod[], Handler | Router]> = [];
+  readonly #routes: Array<[URLPattern, string[], Handler | Router]> = [];
 
-  serve() {
+  serve(): (req: Request, info?: unknown) => Promise<Response> {
     return (req: Request, info: unknown = undefined) => {
       return this.handler()(req, { info: info, matches: [] }, defaultNext);
     };
   }
 
-  use(handler: Handler) {
+  use(handler: Handler): this {
     this.#middleware.push(handler);
     return this;
   }
@@ -41,43 +39,43 @@ export class Router {
   all(
     pathSpec: URLPattern | string,
     handler: Handler | Router,
-    methods: HttpMethod[] = httpMethods
-  ) {
+    methods: string[] = httpMethods
+  ): this {
     const matcher =
       typeof pathSpec === "string"
         ? new URLPattern({
             pathname: pathSpec + (handler instanceof Router ? "/*" : ""),
           })
         : pathSpec;
-    this.#routes.push([matcher, methods, handler]);
+    this.#routes.push([matcher, methods.map((m) => m.toUpperCase()), handler]);
     return this;
   }
 
-  get(pathSpec: URLPattern | string, handler: Handler | Router) {
+  get(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["GET"]);
   }
 
-  post(pathSpec: URLPattern | string, handler: Handler | Router) {
+  post(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["POST"]);
   }
 
-  put(pathSpec: URLPattern | string, handler: Handler | Router) {
+  put(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["PUT"]);
   }
 
-  delete(pathSpec: URLPattern | string, handler: Handler | Router) {
+  delete(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["DELETE"]);
   }
 
-  head(pathSpec: URLPattern | string, handler: Handler | Router) {
+  head(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["HEAD"]);
   }
 
-  patch(pathSpec: URLPattern | string, handler: Handler | Router) {
+  patch(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["PATCH"]);
   }
 
-  options(pathSpec: URLPattern | string, handler: Handler | Router) {
+  options(pathSpec: URLPattern | string, handler: Handler | Router): this {
     return this.all(pathSpec, handler, ["OPTIONS"]);
   }
 
@@ -94,10 +92,7 @@ export class Router {
         if (m === undefined) {
           // not found
           h = () => Promise.resolve(new Response(null, { status: 404 }));
-        } else if (
-          m &&
-          !m[1].includes(req.method.toUpperCase() as HttpMethod)
-        ) {
+        } else if (m && !m[1].includes(req.method.toUpperCase())) {
           // method unsupported
           h = () => Promise.resolve(new Response(null, { status: 405 }));
         } else {
