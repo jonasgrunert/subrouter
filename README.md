@@ -41,5 +41,6 @@ A handler might also be a router instance, which would delegate subrouting to it
 Any routers with a url are constrained to the URLPattern in the handler.
 If a string is given it will be interpreted as URLPAttern based on the handler.
 If the handler is an instance of Roueter the URLPattern matches `pathname: {path}/*` otherwise it is `pathname: {path}`.
+Matches from the URLPattern are pushed to the context under the key matches.
 
 Any error that is not catched in the system will be logged and a 500 response without a body is sent back.
