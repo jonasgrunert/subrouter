@@ -2,8 +2,8 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
 
 jobs:
   publish:
@@ -27,11 +27,6 @@ jobs:
             echo "Test coverage is below 95%: $COVERAGE%"
             exit 1
           fi
-      - uses: dorny/paths-filter@v3
-        id: changes
-        with:
-          filters: |
-            jsr:
-              - 'jsr.json'
+      - run: sed -i 's/<version>/${{ github.ref_name }}/g' jsr.json
       - run: npx jsr publish
         if: steps.changes.outputs.jsr == 'true'
