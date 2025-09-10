@@ -27,4 +27,3 @@ jobs:
           min_coverage: 95
       - run: sed -i 's/<version>/${{ github.ref_name }}/g' jsr.json
       - run: npx jsr publish
-        if: steps.changes.outputs.jsr == 'true'
