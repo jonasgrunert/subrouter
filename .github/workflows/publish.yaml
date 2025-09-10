@@ -26,6 +26,6 @@ jobs:
           path: cov.lcov
           min_coverage: 95
       - run: |
-          ref_name=${{ gihub.ref_name }}
+          ref_name=${{ github.ref_name }}
           echo '{"name": "@jonasgrunert/subrouter","version": "${ref_name#"v"}","license": "MIT","exports": "./router.ts"}' > jsr.json
       - run: npx jsr publish
